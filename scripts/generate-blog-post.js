@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Auto-generates a blog post from the ai-job-search repo README
+ * Auto-generates a blog post from the ai-job-search repo
  * Run: node scripts/generate-blog-post.js
  */
 
@@ -19,52 +19,41 @@ function extractReadme() {
   }
 }
 
-function extractCLAUDE() {
-  try {
-    const claude = fs.readFileSync(path.join(repoPath, "CLAUDE.md"), "utf8")
-    return claude
-  } catch (e) {
-    return null
-  }
-}
-
 function generatePost() {
   const readme = extractReadme()
-  const claude = extractCLAUDE()
-
-  const slug = "how-i-built-an-ai-job-assistant"
+  const slug = "i-built-an-ai-job-search-tool-as-a-college-student"
   const date = new Date().toISOString().split("T")[0]
 
   const html = `<!-- AUTO-GENERATED: Run 'node scripts/generate-blog-post.js' to regenerate -->
 <div class="prose prose-lg max-w-none">
-  <h1>How I Built an AI Job Assistant That Got Me Hired (With 20 Interviews)</h1>
+  <h1>I Built an AI Job Search Tool as a College Student (And Open-Sourced It)</h1>
   
   <p class="lead">
-    When I was laid off, I built an AI-powered job search framework. 69 applications, 20 interviews, 1 signed offer.
-    Here's how it works — and how you can use it.
+    I'm a CS student at UT Dallas building tools to help people navigate job searches.
+    This AI framework automates the most tedious parts of job hunting.
   </p>
 
-  <h2>The Hook: Numbers That Speak Louder Than Keywords</h2>
+  <h2>The Problem I'm Solving</h2>
   
   <p>
-    In late 2025, I was laid off from my role as a geophysicist. Instead of spending Sunday nights
-    writing cover letters, I built an AI agent that did it for me:
+    As a college student, I've watched friends spend <em>hours</em> every week on their job search.
+    Hours reading job descriptions, rewriting cover letters, tweaking resumes for every application.
+    It's exhausting and it's not why they got into engineering.
   </p>
 
-  <ul>
-    <li><strong>69 applications</strong> generated and submitted automatically</li>
-    <li><strong>20 first-round interviews</strong> (33% response rate vs industry average ~5%)</li>
-    <li><strong>1 signed offer</strong> as an AI engineer</li>
-    <li><strong>2 months</strong> from start to first day of work</li>
-  </ul>
+  <p>
+    So I built <a href="https://github.com/RubberDucky3/ai-job-search">ai-job-search</a> — an AI
+    framework that automates the job hunt. And I'm also offering it as a hosted service so people
+    don't have to set up Claude Code + LaTeX locally.
+  </p>
 
-  <h2>How It Actually Works</h2>
+  <h2>What It Does</h2>
   
   <p>The framework is built on Claude Code and has four stages:</p>
 
   <h3>1. Profile Setup</h3>
   <p>
-    Feed the system your CV, LinkedIn export, diplomas, and past application records.
+    Feed the system a CV, LinkedIn export, diplomas, and past application records.
     It builds a structured digital twin of your career.
   </p>
 
@@ -87,26 +76,20 @@ function generatePost() {
     company research, and mock interview questions.
   </p>
 
-  <h2>Why This Works When Other Tools Don't</h2>
+  <h2>Why This Works</h2>
   
   <p>
     Most job boards claim to match you with jobs. But they're just keyword matchers.
-    My system does real semantic evaluation — it understands <em>context</em>, not just keywords.
+    My system does real semantic evaluation — it understands <em>context</em>, not just
+    keywords.
   </p>
   
   <p>
     For example, when applying for an "AI Infrastructure Engineer" role, it recognizes that
-    my experience deploying LLM pipelines counts as "infrastructure" even if I didn't use
-    that exact job title. It frames my experience in the language of the posting —
+    experience deploying LLM pipelines counts as "infrastructure" even if you didn't use
+    that exact job title. It frames your experience in the language of the posting —
     <strong>without fabricating anything</strong>.
   </p>
-
-  <blockquote>
-    <p>
-      "I told every employer I spoke to that my applications were AI-assisted.
-      Instead of counting against me, it usually sparked a genuine technical conversation."
-    </p>
-  </blockquote>
 
   <h2>Try It Yourself</h2>
   
@@ -115,36 +98,36 @@ function generatePost() {
   <h3>Option 1: Self-host (Free)</h3>
   <p>
     Fork the <a href="https://github.com/RubberDucky3/ai-job-search">ai-job-search repo</a>,
-    run it locally with Claude Code. You own your data and your workflow. MIT license.
+    run it locally with Claude Code. You own your data. MIT license.
   </p>
 
-  <h3>Option 2: Hosted (Paid)</h3>
+  <h3>Option 2: Hosted Beta (Free while in beta)</h3>
   <p>
-    <a href="https://ai-job-search-saas.vercel.app/signup">AIJobSearch.ai</a> runs the
-    same workflow on our servers — no installation needed.
+    <a href="https://ai-job-search-saas.vercel.app">AIJobSearch.ai</a> runs the
+    same workflow on our servers — no installation needed. Currently in free beta.
   </p>
   
   <div class="bg-gray-50 p-6 rounded-lg">
     <ul class="list-none space-y-2">
-      <li><strong>Free tier</strong>: 3 AI applications/month</li>
+      <li><strong>Free tier</strong>: 3 AI applications/month — perfect for trying it out</li>
       <li><strong>Pro</strong>: \$9/month — 20 applications, multi-portal scraping, interview prep</li>
-      <li><strong>Team</strong>: \$49/month — for agencies & career coaches</li>
+      <li><strong>Team</strong>: \$49/month — for career coaches and agencies</li>
     </ul>
   </div>
 
-  <h2>Technical Deep Dive</h2>
+  <h2>Built With</h2>
   <p>
-    Built with: Claude Code, TypeScript, Python, LaTeX, Docker
+    Claude Code, TypeScript, Python, LaTeX, Docker.
     <br/>
     <a href="https://github.com/RubberDucky3/ai-job-search">View on GitHub</a> |
-    <a href="https://ai-job-search-saas.vercel.app/signup">Try hosted version</a>
+    <a href="https://ai-job-search-saas.vercel.app">Try hosted version</a>
   </p>
 </div>`
 
   const mdPath = path.join(blogDir, `${slug}.md`)
   fs.mkdirSync(blogDir, { recursive: true })
   fs.writeFileSync(mdPath, "---\n" +
-    `title: "How I Built an AI Job Assistant That Got Me Hired"\n` +
+    `title: "I Built an AI Job Search Tool as a College Student"\n` +
     `date: "${date}"\n` +
     `---\n\n` +
     html)

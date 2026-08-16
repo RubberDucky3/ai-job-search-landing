@@ -18,9 +18,13 @@ export default function Dashboard() {
 
   useEffect(() => {
     const stored = localStorage.getItem("aijs_user")
-    if (stored) {
+    if (!stored) {
+      router.push("/login")
+      return
+    }
+    try {
       setUser(JSON.parse(stored))
-    } else {
+    } catch {
       router.push("/login")
     }
     setLoading(false)

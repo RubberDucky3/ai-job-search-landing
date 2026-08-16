@@ -81,8 +81,14 @@ export default function Signup() {
       })
       const data = await res.json()
       if (res.ok) {
-        if (selectedPlan === "pro" && data.redirectUrl) {
-          window.location.href = data.redirectUrl
+        // Persist user to localStorage
+        localStorage.setItem("aijs_user", JSON.stringify(data.user))
+
+        if (data.requiresPayment) {
+          // Redirect to Stripe checkout for paid plans
+          // In dev, just go to dashboard
+          alert("Pro plan selected! In production this would redirect to Stripe.")
+          router.push("/dashboard")
         } else {
           router.push("/dashboard")
         }

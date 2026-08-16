@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/router"
 import Link from "next/link"
-import { Mail, Lock } from "lucide-react"
 
 export default function Login() {
   const router = useRouter()
@@ -28,6 +27,8 @@ export default function Login() {
       })
       const data = await res.json()
       if (res.ok) {
+        // Persist user to localStorage
+        localStorage.setItem("aijs_user", JSON.stringify(data.user))
         router.push("/dashboard")
       } else {
         alert(data.error || "Login failed")
@@ -87,6 +88,13 @@ export default function Login() {
               Sign up
             </Link>
           </p>
+
+          {/* Demo credentials for testing */}
+          <div className="mt-4 p-3 bg-gray-50 rounded-md">
+            <p className="text-xs text-gray-500 text-center">
+              Demo: signup@demo.com / password123
+            </p>
+          </div>
         </div>
       </div>
     </div>

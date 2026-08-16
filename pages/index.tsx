@@ -119,9 +119,9 @@ export default function Home() {
               The AI Agent That <span className="text-primary-600">Gets You Interviews</span>
             </h1>
             <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-              Built by a former job seeker who used it to land their AI engineering role.
-              Our Claude Code-powered agents evaluate fit, tailor your CV/cover letter,
-              verify PDFs for ATS compliance, and prep you for interviews — automatically.
+              Built by a CS student who was tired of watching friends spend hours on cover letters.
+              This AI workflow scrapes 50+ job boards, writes tailored CVs/cover letters,
+              verifies ATS compatibility, and preps you for interviews — all automatically.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
