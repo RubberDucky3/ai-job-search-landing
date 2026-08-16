@@ -1,5 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next"
 
+// Simple in-memory store for development (replace with Supabase in production)
+let waitlistStore: Array<{ email: string; source?: string; timestamp: string }> = []
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" })
@@ -11,11 +14,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ error: "Email is required" })
   }
 
-  // Simple in-memory waitlist (replace with Supabase/PlanetScale in production)
-  if (typeof global.waitlist === "undefined") {
-    (global as any).waitlist = []
-  }
-  (global as any).waitlist.push({ email, source, timestamp: new Date().toISOString() })
+  waitlistStore.push({ email, source, timestamp: new Date().toISOString() })
 
   // Subscribe to Buttondown (if API key is configured)
   if (process.env.BUTTONDOWN_API_KEY) {
@@ -40,6 +39,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   return res.status(200).json({
     success: true,
     message: "Added to waitlist",
-    count: (global as any).waitlist.length,
+    count: waitlistStore.length,
   })
 }
