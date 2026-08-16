@@ -1,0 +1,17 @@
+SUBJECT: New tool for career coaches: AI job application automation
+
+Hi {name},
+
+I'm reaching out because you're a career coach — and I built something that might save you hours of manual work.
+
+I'm Jerome, a CS student who built an AI job search framework. It's now available as a hosted service (AIJobSearch.ai) that:
+
+• Automatically tailors CVs and cover letters for each job posting
+• Compiles and verifies PDFs for ATS compliance
+• Generates interview prep packs
+
+The Team plan ($49/mo) lets your clients use it under your supervision, with your white-label templates.
+
+I'd love a 10-minute call to show you how it works. Are you free any time this week?
+
+Jerome

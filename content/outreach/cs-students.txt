@@ -1,0 +1,17 @@
+SUBJECT: {name} — automate your job search with AI (built by a fellow CS student)
+
+Hi {name},
+
+I'm Jerome, a CS student at UT Dallas. When I needed to find a job, I built an AI framework that automated the entire process — from finding postings to writing cover letters to interview prep.
+
+It landed me 20 interviews and an AI engineering role at a startup.
+
+The tool is open source:
+https://github.com/RubberDucky3/ai-job-search
+
+And there's a hosted version too:
+https://ai-job-search-saas.vercel.app
+
+I'm looking for early beta testers — would you be interested in 7 days free on Pro?
+
+Jerome

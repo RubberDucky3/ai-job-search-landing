@@ -1,0 +1,22 @@
+=== EMAIL TO: Raj Patel <raj@startups.com> ===
+RELATION: Startup hiring manager
+CATEGORY: career-coaches
+NOTE: Hires devs regularly, might know job seekers to refer
+
+Hi Raj Patel,
+
+I'm reaching out because you work with job seekers — and I built something that might save your clients hours of manual work.
+
+I'm Jerome, a CS student who built an AI job search framework. It's now available as a hosted service (AIJobSearch.ai) that:
+
+• Automatically tailors CVs and cover letters for each job posting
+• Compiles and verifies PDFs for ATS compliance
+• Generates interview prep packs
+
+Hires devs regularly, might know job seekers to refer
+
+I'd love to show you a quick demo. The Team plan ($49/mo) lets your clients use it under your guidance.
+
+Jerome
+
+---

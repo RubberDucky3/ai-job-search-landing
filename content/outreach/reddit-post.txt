@@ -1,0 +1,25 @@
+TITLE: Show HN: AI job search tool that got me 20 interviews and a job offer
+
+**Background:**
+I was laid off from my geophysicist role in late 2025. With 60 days to find something new, I built an AI framework (on Claude Code) to automate my entire job search.
+
+**Results:**
+• 69 AI-generated, tailored applications
+• 20 first-round interviews (33% response rate vs ~5% industry average)  
+• 1 signed offer as an AI engineer
+• 2 months from start to first day
+
+**What it does:**
+1. Scrapes 50+ job boards, deduplicates, and ranks by fit score
+2. Drafts tailored CV + cover letter using LaTeX
+3. Spawns a second AI agent to review and critique the drafts
+4. Compiles PDFs and visually verifies formatting
+5. Runs ATS text-layer verification
+6. Generates interview prep packs with STAR examples
+
+**Tech stack:** Claude Code, TypeScript, Python, LaTeX, Docker
+
+**Links:**
+• OSS repo (MIT): https://github.com/RubberDucky3/ai-job-search
+• Hosted version: https://ai-job-search-saas.vercel.app (Free: 3 apps/mo, Pro: $9/mo for 20)
+• Blog post: https://ai-job-search-saas.vercel.app/blog/how-i-used-ai-to-land-my-job
