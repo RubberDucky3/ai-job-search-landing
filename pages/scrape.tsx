@@ -73,12 +73,36 @@ const MOCK_JOBS: Job[] = [
     stack: ["React", "Node.js", "TypeScript", "PostgreSQL"],
     dealBreakers: ["Startup equity only"],
   },
+  {
+    id: "5",
+    title: "AI Research Engineer",
+    company: "DeepVector",
+    location: "Remote",
+    fitScore: 82,
+    salary: "$130k - $160k",
+    posted: "4 hours ago",
+    url: "https://example.com/job/5",
+    stack: ["Python", "TensorFlow", "CUDA", "Docker"],
+    dealBreakers: [],
+  },
+  {
+    id: "6",
+    title: "Backend Engineer (Python)",
+    company: "ScaleUp",
+    location: "Dallas, TX",
+    fitScore: 71,
+    salary: "$100k - $125k",
+    posted: "2 days ago",
+    url: "https://example.com/job/6",
+    stack: ["Python", "FastAPI", "PostgreSQL", "AWS"],
+    dealBreakers: [],
+  },
 ]
 
 export default function Scrape() {
   const router = useRouter()
   const [user, setUser] = useState<User | null>(null)
-  const [query, setQuery] = useState("AI Engineer")
+  const [query, setQuery] = useState("AI")
   const [location, setLocation] = useState("Remote")
   const [loading, setLoading] = useState(false)
   const [results, setResults] = useState<Job[]>([])
@@ -106,17 +130,15 @@ export default function Scrape() {
     setResults([])
     setTimeout(() => {
       // Simulate API call - in production this calls the real scraping service
+      const queryTerms = query.toLowerCase().split(/\s+/)
       const filtered = MOCK_JOBS.filter(job =>
-        job.title.toLowerCase().includes(query.toLowerCase()) ||
-        job.company.toLowerCase().includes(query.toLowerCase())
+        queryTerms.some(term =>
+          job.title.toLowerCase().includes(term) ||
+          job.company.toLowerCase().includes(term)
+        )
       )
       setResults(filtered)
       setLoading(false)
-
-      // Update usage count
-      const updatedUser = { ...user, applications_used: used + 1 }
-      localStorage.setItem("aijs_user", JSON.stringify(updatedUser))
-      setUser(updatedUser)
     }, 1500)
   }
 

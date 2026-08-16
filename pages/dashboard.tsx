@@ -77,6 +77,19 @@ export default function Dashboard() {
             <span className="capitalize font-medium">{user.plan}</span> plan •{" "}
             {remaining} of {limit} applications remaining this month
           </p>
+
+          {used > 0 && (
+            <button
+              onClick={() => {
+                const resetUser = { ...user, applications_used: 0 }
+                localStorage.setItem("aijs_user", JSON.stringify(resetUser))
+                setUser(resetUser)
+              }}
+              className="text-xs text-gray-500 hover:text-gray-700 underline mt-1"
+            >
+              Reset usage (demo)
+            </button>
+          )}
         </div>
 
         {/* Usage bar */}
