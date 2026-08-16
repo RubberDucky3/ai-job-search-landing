@@ -1,8 +1,17 @@
 import Stripe from "stripe"
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2024-06-18",
-})
+export const stripe = process.env.STRIPE_SECRET_KEY
+  ? new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: "2024-06-18",
+    })
+  : null
+
+export function getStripe() {
+  if (!stripe) {
+    throw new Error("Stripe is not initialized. Set STRIPE_SECRET_KEY in your environment.")
+  }
+  return stripe
+}
 
 export const PLANS = {
   free: {
