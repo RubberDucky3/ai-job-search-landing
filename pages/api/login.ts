@@ -1,16 +1,4 @@
 import type { NextApiRequest, NextApiResponse } from "next"
-import crypto from "crypto"
-
-// In-memory user store (shared with signup.ts)
-// In production, replace with Supabase
-const users: Record<string, {
-  id: string
-  email: string
-  name: string
-  passwordHash: string
-  plan: string
-  applications_used: number
-}> = (global as any).__jobsearch_users || ((global as any).__jobsearch_users = {})
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
@@ -23,32 +11,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ error: "Missing email or password" })
   }
 
-  // Find user by email
-  const user = Object.values(users).find(u => u.email === email)
+  // For demo/beta: accept any valid email+password combo
+  // In production, verify against Supabase Auth
+  const name = email.split("@")[0]
 
-  if (!user) {
-    return res.status(401).json({ error: "No account found with this email" })
+  // Determine plan from query param or default to free
+  const plan = (req.query.plan as string) || "free"
+
+  const user = {
+    id: "user_" + Math.random().toString(36).substring(7),
+    name: name.charAt(0).toUpperCase() + name.slice(1),
+    email,
+    plan: plan as "free" | "pro" | "team",
+    applications_used: 0,
+    created_at: new Date().toISOString(),
   }
 
-  // Verify password
-  const passwordHash = crypto.createHash("sha256").update(password).digest("hex")
-  if (user.passwordHash !== passwordHash) {
-    return res.status(401).json({ error: "Incorrect password" })
-  }
-
-  const safeUser = {
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    plan: user.plan,
-    applications_used: user.applications_used,
-  }
-
-  // Set cookie (not HttpOnly so client can read it)
-  res.setHeader(
-    "Set-Cookie",
-    `aijs_user=${encodeURIComponent(JSON.stringify(safeUser))}; Path=/; Max-Age=31536000; SameSite=Lax`
-  )
-
-  return res.status(200).json({ success: true, user: safeUser })
+  return res.status(200).json({ success: true, user })
 }
