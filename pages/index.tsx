@@ -266,7 +266,7 @@ export default function Home() {
           <form
             onSubmit={async (e) => {
               e.preventDefault()
-              const email = (e.target.elements.email as HTMLInputElement).value
+              const email = (e.target.elements as any).email.value
               if (!email) return
               const res = await fetch("/api/waitlist", {
                 method: "POST",
