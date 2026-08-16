@@ -1,10 +1,21 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/router"
 import Link from "next/link"
+import { Mail, Lock } from "lucide-react"
 
 export default function Login() {
+  const router = useRouter()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
+
+  // If already logged in, redirect to dashboard
+  useEffect(() => {
+    const stored = localStorage.getItem("aijs_user")
+    if (stored) {
+      router.push("/dashboard")
+    }
+  }, [router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -17,7 +28,7 @@ export default function Login() {
       })
       const data = await res.json()
       if (res.ok) {
-        window.location.href = "/dashboard"
+        router.push("/dashboard")
       } else {
         alert(data.error || "Login failed")
       }
@@ -29,10 +40,15 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-md mx-auto px-4">
-        <div className="bg-white rounded-lg shadow-lg p-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Login to your account</h2>
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-accent-50 flex items-center justify-center py-12">
+      <div className="max-w-md w-full">
+        <div className="bg-white rounded-lg shadow-xl p-8">
+          <div className="text-center mb-6">
+            <Link href="/" className="text-2xl font-bold text-primary-700">AIJobSearch.ai</Link>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 text-center mb-2">Welcome back</h2>
+          <p className="text-gray-600 text-center mb-6">Login to your account</p>
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
@@ -64,9 +80,10 @@ export default function Login() {
               {loading ? "Logging in..." : "Login"}
             </button>
           </form>
-          <p className="text-sm text-gray-600 mt-4 text-center">
+
+          <p className="text-sm text-gray-600 mt-6 text-center">
             Don't have an account?{" "}
-            <Link href="/signup?plan=free" className="text-primary-600 font-medium">
+            <Link href="/signup" className="text-primary-600 font-medium">
               Sign up
             </Link>
           </p>

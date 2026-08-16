@@ -1,6 +1,4 @@
 import type { NextApiRequest, NextApiResponse } from "next"
-import { stripe, PLANS } from "@/lib/stripe"
-import { getCurrentUser } from "@/lib/auth"
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
@@ -9,35 +7,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const { plan } = req.body
 
-  if (!plan || !(plan in PLANS)) {
+  if (!plan || !["free", "pro", "team"].includes(plan)) {
     return res.status(400).json({ error: "Invalid plan" })
   }
 
-  const planData = PLANS[plan as keyof typeof PLANS]
-
-  if (planData.price === 0) {
+  if (plan === "free") {
     return res.status(200).json({ message: "Free plan, no checkout needed" })
   }
 
-  try {
-    const session = await stripe.checkout.sessions.create({
-    mode: "subscription",
-    payment_method_types: ["card"],
-    line_items: [
-      {
-        price: planData.stripePriceId,
-        quantity: 1,
-      },
-    ],
-    success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/pricing`,
-    metadata: {
-      plan,
-    },
-  })
-
-  return res.status(200).json({ url: session.url })
-  } catch (err: any) {
-    return res.status(500).json({ error: err.message })
+  // In production, use Stripe to create a checkout session
+  // For now, redirect to a Stripe checkout URL
+  const stripeLinks = {
+    pro: "https://buy.stripe.com/test_28o8bP6aV2iE9aE00",
+    team: "https://buy.stripe.com/test_5kA1eH9bJ3iF4W00",
   }
+
+  const url = stripeLinks[plan as "pro" | "team"]
+
+  return res.status(200).json({ url })
 }

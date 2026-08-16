@@ -1,17 +1,69 @@
 import { useState } from "react"
 import { useRouter } from "next/router"
 import { Check } from "lucide-react"
-import Link from "next/link"
+
+const plans = [
+  {
+    name: "Free",
+    price: "$0",
+    desc: "For trying it out",
+    features: [
+      "3 AI applications per month",
+      "Basic fit evaluation",
+      "Tailored CV + cover letter",
+      "PDF compilation & verification",
+      "ATS keyword check",
+    ],
+    cta: "Get Started",
+    value: "free",
+  },
+  {
+    name: "Pro",
+    price: "$9/mo",
+    desc: "For serious job seekers",
+    features: [
+      "20 AI applications per month",
+      "Multi-portal job scraping (50+ boards)",
+      "Interviewer prep packs",
+      "Salary benchmarking",
+      "Priority support",
+      "Application tracker dashboard",
+    ],
+    cta: "Start 7-day Free Trial",
+    value: "pro",
+  },
+  {
+    name: "Team",
+    price: "$49/mo",
+    desc: "For agencies & career coaches",
+    features: [
+      "100 AI applications per month",
+      "White-label CV templates",
+      "Custom job portal integrations",
+      "Team collaboration workspace",
+      "API access",
+      "Dedicated account manager",
+    ],
+    cta: "Contact Sales",
+    value: "team",
+  },
+]
 
 export default function Signup() {
   const router = useRouter()
-  const { plan } = router.query
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [name, setName] = useState("")
+  const [selectedPlan, setSelectedPlan] = useState("free")
+  const [showForm, setShowForm] = useState(false)
+  const [formData, setFormData] = useState({ name: "", email: "", password: "" })
   const [loading, setLoading] = useState(false)
 
-  const selectedPlan = plan === "pro" ? "pro" : plan === "team" ? "team" : "free"
+  const handlePlanSelect = (planValue: string) => {
+    if (planValue === "team") {
+      window.location.href = "/contact"
+      return
+    }
+    setSelectedPlan(planValue)
+    setShowForm(true)
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -20,11 +72,20 @@ export default function Signup() {
       const res = await fetch("/api/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, name, plan: selectedPlan }),
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+          plan: selectedPlan,
+        }),
       })
       const data = await res.json()
       if (res.ok) {
-        window.location.href = "/dashboard"
+        if (selectedPlan === "pro" && data.redirectUrl) {
+          window.location.href = data.redirectUrl
+        } else {
+          router.push("/dashboard")
+        }
       } else {
         alert(data.error || "Signup failed")
       }
@@ -35,55 +96,93 @@ export default function Signup() {
     }
   }
 
-  const features = [
-    "No credit card required",
-    "Cancel anytime",
-    "256-bit SSL encryption",
-    "Built with Claude Code",
-  ]
-
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-12 items-start">
-          {/* Left: Signup form */}
-          <div className="bg-white rounded-lg shadow-lg p-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">
-              Create your account — {selectedPlan === "free" ? "Free" : "$9/month"} plan
-            </h2>
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-accent-50 py-12">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        {!showForm ? (
+          <>
+            <div className="text-center mb-12">
+              <h1 className="text-3xl font-bold text-gray-900 mb-4">Choose Your Plan</h1>
+              <p className="text-gray-600">Start with 7-day free trial on paid plans. No credit card needed for Free.</p>
+            </div>
+            <div className="grid md:grid-cols-3 gap-6">
+              {plans.map((plan) => (
+                <div
+                  key={plan.value}
+                  className={`border-2 rounded-lg p-6 flex flex-col cursor-pointer transition-all ${
+                    selectedPlan === plan.value
+                      ? "border-primary-600 bg-primary-50 shadow-lg"
+                      : "border-gray-200 hover:border-gray-300"
+                  }`}
+                  onClick={() => handlePlanSelect(plan.value)}
+                >
+                  <h3 className="text-xl font-bold text-gray-900">{plan.name}</h3>
+                  <p className="text-3xl font-bold text-gray-900 mt-2">{plan.price}</p>
+                  <p className="text-gray-600 text-sm mt-1">{plan.desc}</p>
+                  <ul className={`mt-4 space-y-2 flex-1 ${plan.value === "team" ? "mb-4" : "mb-6"}`}>
+                    {plan.features.map((f) => (
+                      <li key={f} className="flex items-center text-sm text-gray-600">
+                        <Check className="h-4 w-4 text-green-600 mr-2" />
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+                  <div className={`mt-auto py-2 text-center rounded-md font-medium ${
+                    selectedPlan === plan.value
+                      ? "bg-primary-600 text-white"
+                      : "bg-gray-100 text-gray-700"
+                  }`}>
+                    {plan.cta}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        ) : (
+          <div className="max-w-md mx-auto">
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">
+                Create your account — {plans.find((p) => p.value === selectedPlan)?.name} plan
+              </h2>
+              <p className="text-gray-600 mt-1">
+                {selectedPlan === "free"
+                  ? "No credit card required."
+                  : "7-day free trial, then $9/month. Cancel anytime."}
+              </p>
+            </div>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
                 <input
                   type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  required
+                  value={formData.name}
+                  onChange={(e) => setFormData({...formData, name: e.target.value})}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
                   placeholder="Jane Doe"
-                  required
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
                 <input
                   type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  value={formData.email}
+                  onChange={(e) => setFormData({...formData, email: e.target.value})}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
                   placeholder="jane@example.com"
-                  required
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
                 <input
                   type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
-                  placeholder="••••••••"
                   required
                   minLength={8}
+                  value={formData.password}
+                  onChange={(e) => setFormData({...formData, password: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+                  placeholder="••••••••"
                 />
               </div>
               <button
@@ -91,44 +190,17 @@ export default function Signup() {
                 disabled={loading}
                 className="w-full bg-primary-600 hover:bg-primary-700 text-white py-2 rounded-md font-medium disabled:opacity-50"
               >
-                {loading ? "Creating..." : `Start ${selectedPlan === "free" ? "Free" : "$9/mo"} Trial`}
+                {loading ? "Creating..." : selectedPlan === "free" ? "Get Started" : "Start Free Trial"}
               </button>
             </form>
-            <p className="text-xs text-gray-500 mt-4">
-              By signing up, you agree to our Terms of Service and Privacy Policy.
-            </p>
+            <button
+              onClick={() => setShowForm(false)}
+              className="text-sm text-gray-600 hover:text-gray-900 mt-4"
+            >
+              ← Back to plans
+            </button>
           </div>
-
-          {/* Right: Features */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">What&apos;s included</h3>
-            <ul className="space-y-3">
-              {features.map((f) => (
-                <li key={f} className="flex items-center text-gray-600">
-                  <Check className="h-5 w-5 text-green-600 mr-2" />
-                  <span>{f}</span>
-                </li>
-              ))}
-            </ul>
-
-            {selectedPlan !== "free" && (
-              <div className="mt-8 p-6 bg-primary-50 rounded-lg border border-primary-200">
-                <h4 className="font-bold text-primary-800 mb-2">7-day free trial</h4>
-                <p className="text-primary-700 text-sm">
-                  Try the full Pro plan free for 7 days. No charge until then.
-                  Cancel anytime from your account settings.
-                </p>
-              </div>
-            )}
-
-            <p className="text-sm text-gray-600 mt-6">
-              Already have an account?{" "}
-              <Link href="/login" className="text-primary-600 font-medium">
-                Login here
-              </Link>
-            </p>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   )

@@ -1,33 +1,43 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/router"
 import Link from "next/link"
+import { FileText, Target, Zap, Briefcase, Search, Calendar, TrendingUp } from "lucide-react"
 
-const dashboardSteps = [
-  { step: 1, name: "Set up your profile", complete: true },
-  { step: 2, name: "Search job postings", complete: false },
-  { step: 3, name: "Apply with AI", complete: false },
-]
+interface User {
+  id: string
+  name: string
+  email: string
+  plan: "free" | "pro" | "team"
+  applications_used: number
+}
 
 export default function Dashboard() {
   const router = useRouter()
-  const [user, setUser] = useState<any>(null)
-  const [showPricing, setShowPricing] = useState(false)
+  const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Check if user is logged in
-    const storedUser = localStorage.getItem("user")
-    if (!storedUser) {
+    const stored = localStorage.getItem("aijs_user")
+    if (stored) {
+      setUser(JSON.parse(stored))
+    } else {
       router.push("/login")
-      return
     }
-    setUser(JSON.parse(storedUser))
+    setLoading(false)
   }, [router])
 
-  if (!user) return null
+  if (loading || !user) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+      </div>
+    )
+  }
 
-  const applicationsLeft = user.plan === "free" ? Math.max(0, 3 - user.applications_used) :
-                           user.plan === "pro" ? Math.max(0, 20 - user.applications_used) :
-                           Math.max(0, 100 - user.applications_used)
+  const limit = user.plan === "free" ? 3 : user.plan === "pro" ? 20 : 100
+  const used = user.applications_used || 0
+  const remaining = Math.max(0, limit - used)
+  const usagePercent = (used / limit) * 100
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -40,7 +50,8 @@ export default function Dashboard() {
               <Link href="/settings" className="text-sm text-gray-600 hover:text-gray-900">Settings</Link>
               <button
                 onClick={() => {
-                  localStorage.removeItem("user")
+                  localStorage.removeItem("aijs_user")
+                  document.cookie = "aijs_user=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT"
                   router.push("/")
                 }}
                 className="text-sm text-gray-600 hover:text-gray-900"
@@ -53,23 +64,15 @@ export default function Dashboard() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Welcome + usage */}
+        {/* Welcome */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Welcome back, {user.name.split(" ")[0] || "there"}</h1>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Welcome back, {user.name.split(" ")[0] || "there"}!
+          </h1>
           <p className="text-gray-600 mt-2">
-            You're on the <strong className="capitalize">{user.plan}</strong> plan.
-            {user.plan === "free" && ` Upgrade for more applications. `}
-            {user.plan !== "free" && ` ${applicationsLeft} applications remaining this month. `}
+            <span className="capitalize font-medium">{user.plan}</span> plan •{" "}
+            {remaining} of {limit} applications remaining this month
           </p>
-
-          {user.plan === "free" && (
-            <button
-              onClick={() => setShowPricing(true)}
-              className="mt-3 bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-            >
-              Upgrade to Pro — $9/month
-            </button>
-          )}
         </div>
 
         {/* Usage bar */}
@@ -77,80 +80,94 @@ export default function Dashboard() {
           <h2 className="text-lg font-semibold text-gray-900 mb-3">Monthly Usage</h2>
           <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
             <div
-              className="bg-primary-600 h-3 rounded-full"
-              style={{ width: `${(user.applications_used / (user.plan === "free" ? 3 : user.plan === "pro" ? 20 : 100)) * 100}%` }}
+              className="bg-primary-600 h-3 rounded-full transition-all"
+              style={{ width: `${Math.min(100, usagePercent)}%` }}
             ></div>
           </div>
           <p className="text-sm text-gray-600">
-            {user.applications_used} / {user.plan === "free" ? 3 : user.plan === "pro" ? 20 : 100} applications used
+            {used} / {limit} applications used
           </p>
+          {user.plan === "free" && remaining <= 1 && (
+            <Link
+              href="/pricing"
+              className="text-primary-600 text-sm font-medium mt-2 inline-block"
+            >
+              Upgrade to Pro for 20 applications/month →
+            </Link>
+          )}
         </div>
 
         {/* Workflow steps */}
         <div className="bg-white rounded-lg shadow p-6 mb-8">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Your Job Search Workflow</h2>
-          <div className="space-y-4">
-            {dashboardSteps.map((step) => (
-              <div key={step.step} className="flex items-center p-4 border rounded-lg">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-4 ${
-                  step.complete ? "bg-green-100 text-green-600" : "bg-gray-100 text-gray-400"
-                }`}>
-                  {step.step}
-                </div>
-                <span className="flex-1">{step.name}</span>
+          <div className="space-y-3">
+            <Link href="/scrape" className="flex items-center p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+              <div className="w-8 h-8 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center mr-4">
+                <Search className="h-4 w-4" />
               </div>
-            ))}
+              <div className="flex-1">
+                <span className="font-medium text-gray-900">1. Search Job Postings</span>
+                <p className="text-sm text-gray-600">Find jobs across 50+ boards, ranked by fit score.</p>
+              </div>
+            </Link>
+            <Link href="/apply" className="flex items-center p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+              <div className="w-8 h-8 bg-gray-100 text-gray-400 rounded-full flex items-center justify-center mr-4">
+                <FileText className="h-4 w-4" />
+              </div>
+              <div className="flex-1">
+                <span className="font-medium text-gray-900">2. Apply with AI</span>
+                <p className="text-sm text-gray-600">Generate tailored CV & cover letter for any job posting.</p>
+              </div>
+            </Link>
+            <div className="flex items-center p-4 border rounded-lg">
+              <div className="w-8 h-8 bg-gray-100 text-gray-400 rounded-full flex items-center justify-center mr-4">
+                <Calendar className="h-4 w-4" />
+              </div>
+              <div className="flex-1">
+                <span className="font-medium text-gray-900">3. Interview Prep</span>
+                <p className="text-sm text-gray-600">Get stage-specific prep packs with STAR examples.</p>
+              </div>
+            </div>
+            <div className="flex items-center p-4 border rounded-lg">
+              <div className="w-8 h-8 bg-gray-100 text-gray-400 rounded-full flex items-center justify-center mr-4">
+                <TrendingUp className="h-4 w-4" />
+              </div>
+              <div className="flex-1">
+                <span className="font-medium text-gray-900">4. Track Results</span>
+                <p className="text-sm text-gray-600">Record outcomes and iterate on your strategy.</p>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Quick actions */}
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-3 gap-4">
           <Link
             href="/scrape"
-            className="bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow"
+            className="bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow text-center"
           >
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">🔍 Search Jobs</h3>
-            <p className="text-gray-600 text-sm">Find job postings across 50+ boards, filtered by your fit score.</p>
+            <Search className="h-8 w-8 text-primary-600 mx-auto mb-2" />
+            <h3 className="font-semibold text-gray-900">Search Jobs</h3>
+            <p className="text-sm text-gray-600 mt-1">Find postings ranked by fit score</p>
           </Link>
           <Link
             href="/apply"
-            className="bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow"
+            className="bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow text-center"
           >
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">✉️ Apply Now</h3>
-            <p className="text-gray-600 text-sm">Generate tailored CV & cover letter for a specific job posting.</p>
+            <Zap className="h-8 w-8 text-primary-600 mx-auto mb-2" />
+            <h3 className="font-semibold text-gray-900">Apply Now</h3>
+            <p className="text-sm text-gray-600 mt-1">Generate CV + cover letter</p>
+          </Link>
+          <Link
+            href="/settings"
+            className="bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow text-center"
+          >
+            <Target className="h-8 w-8 text-primary-600 mx-auto mb-2" />
+            <h3 className="font-semibold text-gray-900">Settings</h3>
+            <p className="text-sm text-gray-600 mt-1">Profile & billing</p>
           </Link>
         </div>
       </main>
-
-      {/* Pricing modal */}
-      {showPricing && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg max-w-md w-full p-6">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Upgrade to Pro</h3>
-            <ul className="space-y-2 text-sm text-gray-600 mb-4">
-              <li>• 20 AI applications/month (vs 3 free)</li>
-              <li>• Multi-portal job scraping</li>
-              <li>• Interviewer prep packs</li>
-              <li>• Salary benchmarking</li>
-              <li>• Priority support</li>
-            </ul>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowPricing(false)}
-                className="flex-1 border border-gray-300 text-gray-700 py-2 rounded-md"
-              >
-                Cancel
-              </button>
-              <a
-                href="https://buy.stripe.com/test_pro_upgrade"
-                className="flex-1 bg-primary-600 hover:bg-primary-700 text-white py-2 rounded-md text-center"
-              >
-                Upgrade — $9/mo
-              </a>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
